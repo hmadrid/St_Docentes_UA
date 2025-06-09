@@ -25,8 +25,7 @@ def main():
     # Crear dos columnas para los campos de entrada
     col1, col2 = st.columns(2)
     with col1:
-        correos = df_long['CORREO'].dropna().unique()
-        correo_sel = st.selectbox("Selecciona el correo del docente:", sorted(correos))
+        correo_sel = st.text_input("Ingresa tu correo institucional:")
     with col2:
         rut_inicio = st.text_input("Ingresa los primeros 4 dígitos de tu RUT:", max_chars=4)
 
@@ -34,6 +33,11 @@ def main():
     if correo_sel and rut_inicio:
         if not (rut_inicio.isdigit() and len(rut_inicio) == 4):
             st.error("Por favor, ingresa exactamente 4 dígitos para el RUT.")
+            st.stop()
+            
+        # Verificar que el correo existe y coincide con el RUT
+        if correo_sel not in df_long['CORREO'].values:
+            st.error("El correo ingresado no se encuentra en nuestros registros.")
             st.stop()
             
         # Verificar que el RUT coincida con el correo

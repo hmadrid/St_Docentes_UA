@@ -9,7 +9,7 @@ def main():
     st.title("Estado de Docente por Mail")
     # Leyenda de símbolos
     st.markdown(
-        '<div style="margin-bottom:18px;">'
+        '<div style="margin-bottom:18px;">' 
         '    <span style="display:inline-block;width:18px;height:18px;border-radius:50%;background:#1976d2;color:#fff;text-align:center;line-height:18px;font-size:13px;margin-right:6px;vertical-align:middle;">●</span> <span style="margin-right:18px;">Obligatorio</span>'
         '    <span style="display:inline-block;width:18px;height:18px;border-radius:50%;background:#ff9800;color:#fff;text-align:center;line-height:18px;font-size:13px;margin-right:6px;vertical-align:middle;">○</span> <span>Optativo</span>'
         '</div>',
@@ -21,10 +21,29 @@ def main():
         st.error(f"No se encontró el archivo de datos en: {csv_path}")
         st.stop()
     df_long = pd.read_csv(csv_path, sep=';', encoding='utf-8')
-    correos = df_long['CORREO'].dropna().unique()
-    correo_sel = st.selectbox("Selecciona el correo del docente a consultar:", sorted(correos))
-    if correo_sel:
-        df_mail = df_long[df_long['CORREO'] == correo_sel]
+    
+    # Crear dos columnas para los campos de entrada
+    col1, col2 = st.columns(2)
+    with col1:
+        correos = df_long['CORREO'].dropna().unique()
+        correo_sel = st.selectbox("Selecciona el correo del docente:", sorted(correos))
+    with col2:
+        rut_inicio = st.text_input("Ingresa los primeros 4 dígitos de tu RUT:", max_chars=4)
+
+    # Validar que se hayan ingresado ambos campos y que el RUT tenga exactamente 4 dígitos
+    if correo_sel and rut_inicio:
+        if not (rut_inicio.isdigit() and len(rut_inicio) == 4):
+            st.error("Por favor, ingresa exactamente 4 dígitos para el RUT.")
+            st.stop()
+            
+        # Verificar que el RUT coincida con el correo
+        df_filtrado = df_long[(df_long['CORREO'] == correo_sel) & (df_long['RUT'].astype(str).str.startswith(rut_inicio))]
+        
+        if df_filtrado.empty:
+            st.error("Los datos ingresados no coinciden. Por favor, verifica tu información.")
+            st.stop()
+            
+        df_mail = df_filtrado
         orden_niveles = ['Habilitante', 'Inicial', 'Avanzado', 'Experto']
         cols = st.columns(4)
         for i, nivel in enumerate(orden_niveles):

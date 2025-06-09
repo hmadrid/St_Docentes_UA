@@ -2,11 +2,19 @@ import streamlit as st
 import pandas as pd
 import os
 
-# Configurar el diseño de la página a "wide"
-st.set_page_config(layout="wide")
+# Configurar el diseño de la página
+favicon_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "img", "favicon.png"))
+with open(favicon_path, "rb") as f:
+    favicon_data = f.read()
+
+st.set_page_config(
+    page_title="Resultados Individuales UA",
+    page_icon=favicon_data,
+    layout="wide"
+)
 
 def main():
-    st.title("Estado de Docente por Mail")
+    st.title("Resultados Individuales UA")
     # Leer el DataFrame limpio desde CSV (ruta correcta)
     csv_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "df_ruta_largo.csv"))
     if not os.path.exists(csv_path):
